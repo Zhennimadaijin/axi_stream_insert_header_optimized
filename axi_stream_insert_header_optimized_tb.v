@@ -6,36 +6,36 @@ parameter DATA_WD = 32;
 parameter DATA_BYTE_WD = DATA_WD / 8 ;
 parameter BYTE_CNT_WD = $clog2(DATA_BYTE_WD);
 
-reg				                    clk;
-reg				                    rst_n;
+reg				                clk;
+reg				                rst_n;
 
 reg                          	valid_insert;
 reg   [DATA_WD-1 : 0]        	data_insert;
-reg  	[DATA_BYTE_WD-1 : 0] 	  keep_insert;
+reg   [DATA_BYTE_WD-1 : 0] 	    keep_insert;
 wire                         	ready_insert;
-reg  	[BYTE_CNT_WD-1 : 0]   	byte_insert_cnt; 
+reg   [BYTE_CNT_WD-1 : 0]   	byte_insert_cnt; 
 
   
-reg                        	  valid_in;
+reg                        	    valid_in;
 reg   [DATA_WD-1 : 0]        	data_in;
-reg   [DATA_BYTE_WD-1 : 0] 	  keep_in;
-reg                        	  last_in;
-wire                       	  ready_in;
+reg   [DATA_BYTE_WD-1 : 0] 	    keep_in;
+reg                        	    last_in;
+wire                       	    ready_in;
 
   
-wire                       	  valid_out;
-wire 	[DATA_WD-1 : 0]        	data_out;
-wire 	[DATA_BYTE_WD-1 : 0] 	  keep_out;
-wire                       	  last_out;
-reg                        	  ready_out;
+wire                       	    valid_out;
+wire  [DATA_WD-1 : 0]        	data_out;
+wire  [DATA_BYTE_WD-1 : 0]     	keep_out;
+wire                       	    last_out;
+reg                        	    ready_out;
 
-reg  [DATA_WD-1:0]    	      data_r1;
+reg  [DATA_WD-1:0]    	        data_r1;
 reg  [DATA_BYTE_WD-1:0] 	    data_keep_r1;
-reg              		          hdr_valid_r1;
-reg	 [DATA_WD-1:0]  		      har_r1;
+reg              		        hdr_valid_r1;
+reg	 [DATA_WD-1:0]  		    har_r1;
 reg  [DATA_BYTE_WD-1:0]     	hdr_keep_r1;
 
-reg  [2*DATA_WD-1:0]          temp_data;
+reg  [2*DATA_WD-1:0]            temp_data;
 reg  [2*DATA_BYTE_WD-1:0]   	temp_keep;
 
 axi_stream_insert_header axi(
@@ -56,10 +56,9 @@ axi_stream_insert_header axi(
   .byte_insert_cnt      (byte_insert_cnt),
   .keep_insert          (keep_insert),
   .ready_insert         (ready_insert)
-
 );
 
-
+always #10 clk = ~clk;
   
 initial begin 
       hdr_valid_r1        <= 1'b0;
@@ -131,7 +130,7 @@ task test1;
         repeat(5)
       begin
             data_axi;
-            @(posedge clk)
+            @(posedge clk);
       end
             data_axi_last;
   end
@@ -149,7 +148,7 @@ task test2;
           repeat (5)
        begin
               data axi;  
-              @(posedge clk)
+              @(posedge clk);
        end
               data_axi_last;
     end
@@ -161,16 +160,16 @@ task test3;
          repeat(5)
          begin
               data_axi;
-              @(posedge clk)
+              @(posedge clk);
          end 
               hdr_axi_slave;
-              @(posedge clk)
+              @(posedge clk);
               hdr_axi_slave;
               @(posedge clk)
            repeat(8)
            begin
               data_axi;
-              @(posedge clk) 
+              @(posedge clk);
            end 
               data_axi_last;
        end 
@@ -183,16 +182,13 @@ initial  begin
     ready_out     = 1'b1;
     #12  rst_n    = 'd1;
     test1;
-    @(posedge clk)
+    @(posedge clk);
     test2;
-    @(posedge clk)
+    @(posedge clk);
     test3;
 #200;
 #finish;
     end 
-
-always #10 clk = ~clk;
-  
 
   endmodule 
 
