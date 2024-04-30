@@ -24,7 +24,7 @@ module axi_stream_insert_header#(
     input [DATA_WD-1 : 0]            data_insert,
     input [DATA_BYTE_WD-1 : 0]       keep_insert,
     input [BYTE_CNT_WD-1 : 0]        byte_insert_cnt, 
-    input [BYTE_CNT_WD-1 : 0]        ready_insert
+    input                            ready_insert
 );
     // Your code here
     reg                              hdr_valid_r1;
