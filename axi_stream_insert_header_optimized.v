@@ -5,8 +5,8 @@ module axi_stream_insert_header#(
     parameter DATA_BYTE_WD = DATA_WD / 8,
     parameter BYTE_CNT_WD = $ clog2(DATA_BYTE_WD)
 )( 
-    input                  		 clk,
-    input                   	 rst_n,
+    input                  		     clk,
+    input                   	     rst_n,
     // AXI Stream input original data
     input                     	     valid_in,
     input [DATA_WD-1 : 0]     	     data_in,
@@ -15,8 +15,8 @@ module axi_stream_insert_header#(
     output                     	     ready_in,
     // AXI Stream output with header inserted
     output                           valid_out,
-    output [DATA_WD-1 : 0]       	   data_out,
-    output [DATA_BYTE_WD-1 : 0]  	   keep_out,
+    output [DATA_WD-1 : 0]       	 data_out,
+    output [DATA_BYTE_WD-1 : 0]  	 keep_out,
     output                           last_out,
     input                            ready_out,
     // The header to be inserted to AXI Stream input
@@ -27,16 +27,28 @@ module axi_stream_insert_header#(
     input                            ready_insert
 );
     // Your code here
-    reg                              hdr_valid_r1;
-    reg                              hdr_data_r1;
-    reg                              hdr_keep_r1;
-    reg                              byte_insert_cnt_r1;
+
+    reg  [DATA_WD-1:0]               hdr_data_r1;
+    reg  [DATA_BYTE_WD-1:0]          hdr_keep_r1;
+    reg  [BYTE_CNT_WD-1:0]           byte_insert_cnt_r1;
     reg                              last_out_r1;
+    reg                              hdr_valid_r1;
     reg  [DATA_WD-1:0]               temp_data;
     reg  [DATA_BYTE_WD_1:0]          temp_keep;   
 
+ function [DATA_WD-1:0] shift_left;
+        input [DATA_WD-1:0] value;
+        begin
+            shift_left = value << 2;
+        end
+    endfunction
 
-
+function [DATA_BYTE_WD-1:0] shift_keep_left;
+        input [DATA_BYTE_WD-1:0] value;
+        begin
+            shift_keep_left = value << 2;
+        end
+    endfunction
   
  always @(posedge clk or negedge rst_n) begin 
     if (!rst_n) begin 
@@ -44,50 +56,55 @@ module axi_stream_insert_header#(
         hdr_data_r1          <=  'b0;
         hdr_keep_r1          <=  'b0;
         byte_insert_cnt_r1   <=  'b0;
-    end else if (ready_insert & valid_insert) begin 
+        last_out_r1          <= 1'b0;
+        temp_data            <=  'b0;
+        temp_keep            <=  'b0;
+        ready_in             <= 1'b1;
+    end else begin  
+        if (ready_insert & valid_insert) begin 
         hdr_valid_r1         <= 1'b1;
         hdr_data_r1          <= data_insert;
         hdr_keep_r1          <= keep_insert;
         byte_insert_cnt_r1   <= byte_insert_cnt;
+        ready_in             <= ready_out;
     end else if (ready_out & last_out)  begin 
         hdr_valid_r1         <= 1'b0;
+        ready_in             <= ready_out;
+    end else if (ready_out & valid_in & ~hdr_valid_r1) begin 
+        temp_data            <= data_in;
+        temp_keep            <= keep_in;
+        if (last_in) begin 
+            last_out_r1      <= 1'b1;
+        end 
+        ready_in             <= ready_out;
+    end else if (ready_out & hdr_valid_r1 & valid_in) begin 
+        integer shift_amt = DATA_BYTE_WD - byte_insert_cnt_r1;
+                temp_data    <= shift_left(hdr_data_r1, shift_amt) | data_in;
+                temp_keep    <= shift_keep_left(hdr_keep_r1, shift_amt) | keep_in;
+                last_out_r1  <= last_in;
+                ready_in     <= ready_out;
     end 
+        if (raady_out) begin 
+            last_out_r1      <= last_in;
+        end
+    end
  end 
 
-
- assign ready_in = !hdr_valid_r1;
-
   always @(posedge clk or negedge rst_n) begin 
     if (!rst_n) begin 
-      temp_data   <= 'b0;
-      temp_keep   <= 'b0;
-    end else if (hdr_valid_r1 & ready_in & valid_in) begin 
-      temp_data = (hdr_data_r1 << (8*(DATA_BYTE_WD - byte_insert_cnt_r1))) | data_in;
-      temp_keep =(hdr_keep_r1 << (DATA_BYTE_WD -byte_insert_cnt_r1)) | keep_in;
-    end else if (ready_in & valid_in) begin 
-      temp_data = temp_in;
-      temp_keep = keep_in;
+      keep_out    <=  'b0; 
+      data_out    <=  'b0;
+      valid_out   <= 1'b0;  
+      last_out    <= 1'b0;
+   end else if (ready_out) begin
+      valid_out   <= hdr_valid_r1 ? valid_in : 1'b0;
+      data_out    <= hdr_valid_r1 ? temp_data : data_in;
+      keep_out    <= hdr_valid_r1 ? temp_keep : keep_in;
+      last_out    <= last_out_r1;
+        end
     end 
-  end 
-
-  assign valid_out = hdr_valid_r1 ? valid_in : 1'b0;
-  assign data_out  = temp_data;
-  assign keep_out  = temp_keep;
-
-  always @(posedge clk or negedge rst_n) begin 
-    if (!rst_n) begin 
-      last_out_r1 <= 1'b0;
-    end else if (ready_out) begin 
-      last_out_r1 <= last_in;
-    end 
-  end 
-
-  assign last_out = last_out_r1;
-
-endmodule 
-      
   
-
+endmodule
   
 
 
