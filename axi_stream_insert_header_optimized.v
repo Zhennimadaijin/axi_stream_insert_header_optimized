@@ -1,9 +1,9 @@
 `timescale 1ns/1ps 
 
 module axi_stream_insert_header#(
-    parameter DATA_WD = 32,
-    parameter DATA_BYTE_WD = DATA_WD / 8,
-    parameter BYTE_CNT_WD = $ clog2(DATA_BYTE_WD)
+    parameter DATA_WD          = 32,
+    parameter DATA_BYTE_WD     = DATA_WD / 8,
+    parameter BYTE_CNT_WD      = $ clog2(DATA_BYTE_WD)
 )( 
     input                  		     clk,
     input                   	     rst_n,
@@ -36,20 +36,25 @@ module axi_stream_insert_header#(
     reg  [DATA_WD-1:0]               temp_data;
     reg  [DATA_BYTE_WD_1:0]          temp_keep;   
 
+
+    
  function [DATA_WD-1:0] shift_left;
-        input [DATA_WD-1:0] value;
+    input [DATA_WD-1:0] value;
         begin
             shift_left = value << 2;
         end
     endfunction
 
+
+    
 function [DATA_BYTE_WD-1:0] shift_keep_left;
-        input [DATA_BYTE_WD-1:0] value;
+     input [DATA_BYTE_WD-1:0] value;
         begin
             shift_keep_left = value << 2;
         end
     endfunction
-  
+
+    
  always @(posedge clk or negedge rst_n) begin 
     if (!rst_n) begin 
         hdr_valid_r1         <= 1'b0;
@@ -73,19 +78,18 @@ function [DATA_BYTE_WD-1:0] shift_keep_left;
     end else if (ready_out & valid_in & ~hdr_valid_r1) begin 
         temp_data            <= data_in;
         temp_keep            <= keep_in;
-        if (last_in) begin 
-            last_out_r1      <= 1'b1;
-        end 
-        ready_in             <= ready_out;
-    end else if (ready_out & hdr_valid_r1 & valid_in) begin 
-        integer shift_amt = DATA_BYTE_WD - byte_insert_cnt_r1;
-                temp_data    <= shift_left(hdr_data_r1, shift_amt) | data_in;
-                temp_keep    <= shift_keep_left(hdr_keep_r1, shift_amt) | keep_in;
-                last_out_r1  <= last_in;
-                ready_in     <= ready_out;
+    if (last_in) begin 
+        last_out_r1          <= 1'b1;
     end 
+        ready_in             <= ready_out;
+    end else if (ready_out & hdr_valid_r1 & valid_in) begin
+    integer     shift_amt = DATA_BYTE_WD - byte_insert_cnt_r1;
+                   
+        temp_keep    <= shift_keep_left(hdr_keep_r1, shift_amt) | keep_in;
+                    last_out_r1  <= last_in;
+    end
         if (raady_out) begin 
-            last_out_r1      <= last_in;
+                    last_out_r1      <= last_in;
         end
     end
  end 
@@ -96,13 +100,13 @@ function [DATA_BYTE_WD-1:0] shift_keep_left;
       data_out    <=  'b0;
       valid_out   <= 1'b0;  
       last_out    <= 1'b0;
-   end else if (ready_out) begin
-      valid_out   <= hdr_valid_r1 ? valid_in : 1'b0;
-      data_out    <= hdr_valid_r1 ? temp_data : data_in;
-      keep_out    <= hdr_valid_r1 ? temp_keep : keep_in;
-      last_out    <= last_out_r1;
-        end
-    end 
+    end else if (ready_out) begin
+      valid_out   <= hdr_valid_r1 ? valid_in : 1'b1;
+      data_out    <= hdr_valid_r1 ? hdr_data_r1 : data_in;
+      keep_out    <= hdr_valid_r1 ? hdr_keep_r1 : keep_in;
+      last_out    <= hdr_valid_r1 ? 1'b1        : last_out_r1;
+    end
+  end 
   
 endmodule
   
