@@ -34,7 +34,7 @@ reg  [DATA_BYTE_WD-1:0] 	    data_keep_r1;
 reg              		        hdr_valid_r1;
 reg	 [DATA_WD-1:0]  		    har_r1;
 reg  [DATA_BYTE_WD-1:0]     	hdr_keep_r1;
-
+reg  [BYTE_CNT_WD-1:0]          byte_insert_cnt_r1;
 reg  [2*DATA_WD-1:0]            temp_data;
 reg  [2*DATA_BYTE_WD-1:0]   	temp_keep;
 
