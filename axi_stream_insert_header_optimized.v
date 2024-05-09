@@ -15,8 +15,8 @@ module axi_stream_insert_header#(
     output                     	     ready_in,
     // AXI Stream output with header inserted
     output                           valid_out,
-    output [DATA_WD-1 : 0]       	 data_out,
-    output [DATA_BYTE_WD-1 : 0]  	 keep_out,
+    output [DATA_WD-1 : 0]           data_out,
+    output [DATA_BYTE_WD-1 : 0]      keep_out,
     output                           last_out,
     input                            ready_out,
     // The header to be inserted to AXI Stream input
