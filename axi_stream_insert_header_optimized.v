@@ -56,7 +56,7 @@ function [DATA_BYTE_WD-1:0] shift_keep_left;
 
     
  always @(posedge clk or negedge rst_n) begin 
-     if (!rst_n) begin                                                         //复位信号有效 
+     if (!rst_n) begin                                                         //复位信号有效，初始化信号
         hdr_valid_r1         <= 1'b0;
         hdr_data_r1          <=  'b0;
         hdr_keep_r1          <=  'b0;
