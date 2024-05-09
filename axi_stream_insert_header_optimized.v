@@ -100,11 +100,11 @@ function [DATA_BYTE_WD-1:0] shift_keep_left;
       data_out    <=  'b0;
       valid_out   <= 1'b0;  
       last_out    <= 1'b0;
-    end else if (ready_out) begin
-      valid_out   <= hdr_valid_r1 ? valid_in : 1'b1;
-      data_out    <= hdr_valid_r1 ? hdr_data_r1 : data_in;
-      keep_out    <= hdr_valid_r1 ? hdr_keep_r1 : keep_in;
-      last_out    <= hdr_valid_r1 ? 1'b1        : last_out_r1;
+    end else if (ready_out) begin                                            //接收方准备接收数据
+      valid_out   <= hdr_valid_r1 ? valid_in : 1'b1;                         //valid_out的值根据头部插入信号的状态更新
+      data_out    <= hdr_valid_r1 ? hdr_data_r1 : data_in;                   //data_out的值根据头部插入信号的状态更新，如果有头部插入信号那么该值等于hdr_data_r1的值，否则直等于data_in的值
+      keep_out    <= hdr_valid_r1 ? hdr_keep_r1 : keep_in;                   //keep_out的值根据又不插入信号的状态更新，如果有头部插入信号那么该值等于hdr_keep_r1的值，否则直接等于keep_in的值
+      last_out    <= hdr_valid_r1 ? 1'b1        : last_out_r1;               //last_out的值根据头部插入信号的状态更新，如果有头部插入信号那么该值等于1'b1指示头部插入数据作为最后一个数据项发送，否则为last_out_r1的值
     end
   end 
   
