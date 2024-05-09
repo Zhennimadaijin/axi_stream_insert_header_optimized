@@ -5,7 +5,7 @@ module axi_stream_insert_header#(
     parameter DATA_BYTE_WD     = DATA_WD / 8,
     parameter BYTE_CNT_WD      = $ clog2(DATA_BYTE_WD)
 )( 
-    input                  		     clk,
+    input                    clk,
     input                   	     rst_n,
     // AXI Stream input original data
     input                     	     valid_in,
