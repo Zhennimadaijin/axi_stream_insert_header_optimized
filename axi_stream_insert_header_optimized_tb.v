@@ -75,46 +75,46 @@ end
 
 
 task hdr_axi_slave;
-reg [BYTE CNT WD-1:0]  hdr_cnt;
+integer shift_amt = DATA_BYTE_WD - byte_insert_cnt_r1;
     begin
-            ready_insert    = 1'b1;
-            valid_insert    = 1'b1;
+            ready_insert    = $random;
+            valid_insert    = $random;
             data_insert     = $random;
-            hdr_cnt         = $urandom_range(0, DATA_BYTE_WD-1);
-            keep_insert     = 4'hf >> hdr_cnt;
-            byte_insert_cnt = DATA_BYTE_ WD - hdr_cnt;
+            shift_amt       = $urandom_range(0, DATA_BYTE_WD-1);
+            keep_insert     = $random >> shift_amt;
+            byte_insert_cnt = DATA_BYTE_ WD - shift_amt;
     end
 endtask
 
   
 task data_axi;
   begin 
-        valid_in       = 1'b1;
+        valid_in       = $random;
         data_in        = $random;
-        keep_in        = 4'hf;
-        last_in        = 1'b0;
+        keep_in        = $random;
+        last_in        = $random;
   end 
 endtask
  
 task data_axi_last;
   reg [DATA_BYTE_WD_1:0] last_cnt;
   begin 
-          valid_in    = 1'b1;   
-          last_in     = 1'b1;
+          valid_in    = $random;   
+          last_in     = $random;
           data_in     = $random;
           last_cnt    = $urandom_range(0, DATA_BYTE_WD-1);
-          keep_in     = 4'hf << last_cnt;
+          keep_in     = $random << last_cnt;
           @(posedge clk)
-          valid_in    =1'b0;
-          last_in     =1'b0;
+          valid_in    =$random;
+          last_in     =$random;
   end 
 endtask 
 
 
 task data_axi_intp;
   begin 
-          valid_in    = 1'b0;   
-          last_in     = 1'b0;
+          valid_in    = $random;   
+          last_in     = $random;
           data_in     = $random;
           keep_in     = $random;
   end
@@ -126,8 +126,8 @@ task test1;
         data_axi;
         hdr_axi_slave;
         @(posedge clk)
-        valid_insert =l'b0;
-        repeat(5)
+        valid_insert =$random;
+      repeat(10)
       begin
             data_axi;
             @(posedge clk);
@@ -144,8 +144,8 @@ task test2;
           @(posedge clk)
           hdr_axi_slave;
           @(posedge clk)
-          valid_insert =1'b0;
-          repeat (5)
+          valid_insert =$random;
+        repeat (10)
        begin
               data axi;  
               @(posedge clk);
@@ -157,7 +157,7 @@ endtask
 
 task test3;
        begin
-         repeat(5)
+           repeat(10)
          begin
               data_axi;
               @(posedge clk);
