@@ -5,15 +5,15 @@ module axi_stream_insert_header_tb(
 parameter DATA_WD = 32;
 parameter DATA_BYTE_WD = DATA_WD / 8 ;
 parameter BYTE_CNT_WD = $clog2(DATA_BYTE_WD);
+    
+reg                            clk;
+reg                            rst_n;
 
-reg				                clk;
-reg				                rst_n;
-
-reg                          	valid_insert;
-reg   [DATA_WD-1 : 0]        	data_insert;
-reg   [DATA_BYTE_WD-1 : 0] 	    keep_insert;
-wire                         	ready_insert;
-reg   [BYTE_CNT_WD-1 : 0]   	byte_insert_cnt; 
+reg                            valid_insert;
+reg   [DATA_WD-1 : 0]          data_insert;
+reg   [DATA_BYTE_WD-1 : 0] 	   keep_insert;
+wire                           ready_insert;
+reg   [BYTE_CNT_WD-1 : 0]      byte_insert_cnt; 
 
   
 reg                        	    valid_in;
