@@ -127,7 +127,7 @@ task test1;
         hdr_axi_slave;
         @(posedge clk)
         valid_insert =$random;
-      repeat(10)
+      repeat(15)
       begin
             data_axi;
             @(posedge clk);
@@ -145,7 +145,7 @@ task test2;
           hdr_axi_slave;
           @(posedge clk)
           valid_insert =$random;
-        repeat (10)
+        repeat (15)
        begin
               data axi;  
               @(posedge clk);
@@ -157,7 +157,7 @@ endtask
 
 task test3;
        begin
-           repeat(10)
+           repeat(15)
          begin
               data_axi;
               @(posedge clk);
@@ -166,7 +166,7 @@ task test3;
               @(posedge clk);
               hdr_axi_slave;
               @(posedge clk)
-           repeat(8)
+           repeat(15)
            begin
               data_axi;
               @(posedge clk);
@@ -180,7 +180,7 @@ initial  begin
     clk           = 'd0;
     rst_n         = 'd0;
     ready_out     = 1'b1;
-    #12  rst_n    = 'd1;
+    #12  rst_n    = 1'b1;
     test1;
     @(posedge clk);
     test2;
