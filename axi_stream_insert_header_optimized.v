@@ -10,7 +10,7 @@ module axi_stream_insert_header#(
     input                     	     valid_in,
     input [DATA_WD-1 : 0]     	     data_in,
     input [DATA_BYTE_WD-1 : 0] 	     keep_in,
-    input                      	     last_in,
+    input                      	     last_in, 
     output                     	     ready_in,
     // AXI Stream output with header inserted
     output                           valid_out,
