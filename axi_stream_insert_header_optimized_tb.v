@@ -11,7 +11,7 @@ reg                            rst_n;
 
 reg                            valid_insert;
 reg   [DATA_WD-1 : 0]          data_insert;
-reg   [DATA_BYTE_WD-1 : 0] keep_insert;
+reg   [DATA_BYTE_WD-1 : 0] 		 keep_insert;
 wire                           ready_insert;
 reg   [BYTE_CNT_WD-1 : 0]      byte_insert_cnt; 
 
