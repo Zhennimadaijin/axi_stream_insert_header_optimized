@@ -37,14 +37,6 @@ module axi_stream_insert_header#(
 
 
     
-// function [DATA_WD-1:0] shift_left;
-  //  input [DATA_WD-1:0] value;
-//        begin
-   //         shift_left = value << 2;
-//        end
- //   endfunction
-
-
 
 function [DATA_BYTE_WD-1:0] shift_keep_left;
 	input [DATA_BYTE_WD-1:0] value;
@@ -71,33 +63,33 @@ always @(posedge clk or negedge rst_n)
   	 else 
 		begin    
      		if (ready_insert & valid_insert) 
-			 	begin                                 									   //当成功握手时，进行数据传输
-        	  		hdr_valid_r1         <= 1'b1;                                          //当前有头部数据准备插入
-       	  	  		hdr_data_r1          <= data_insert;                                   //将插入数据寄存   
-        	  		hdr_keep_r1          <= keep_insert;                                   //插入选通信号寄存
-        	  		byte_insert_cnt_r1   <= byte_insert_cnt;                               //将插入的字节位数寄存
-        	  		ready_in             <= ready_out;                                     //当从设备准备好接收数据时，主设备才能准备发送数据
+			 	begin                                 					//当成功握手时，进行数据传输
+        	  		hdr_valid_r1         <= 1'b1;                       //当前有头部数据准备插入
+       	  	  		hdr_data_r1          <= data_insert;                //将插入数据寄存   
+        	  		hdr_keep_r1          <= keep_insert;                //插入选通信号寄存
+        	  		byte_insert_cnt_r1   <= byte_insert_cnt;            //将插入的字节位数寄存
+        	  		ready_in             <= ready_out;                  //当从设备准备好接收数据时，主设备才能准备发送数据
              	end
 			else if (ready_out & valid_out & last_out)  
-				begin                              										   //准备接收且为最后一个数据包时
-        	  		hdr_valid_r1         <= 1'b0;                                          //成功插入后，进行清零，为下一次传输做准备
-        	  		ready_in             <= ready_out;                                     //当从设备准备好接收数据时，主设备才能准备发送数据
+				begin                              			              //准备接收且为最后一个数据包时
+        	  		hdr_valid_r1         <= 1'b0;                         //成功插入后，进行清零，为下一次传输做准备
+        	  		ready_in             <= ready_out;                    //当从设备准备好接收数据时，主设备才能准备发送数据
         		end 
 			else if (ready_in & valid_in & ~hdr_valid_r1) 	
-				begin               													   //没有头部数据插入时，主设备准备发送数据，从设备准备接收数据
-        			temp_data            <= data_in;                                       //将当前输入数据寄存
-        			temp_keep            <= keep_in;  									   //将当前数据保持信号寄存
+				begin               							         //没有头部数据插入时，从设备准备接收数据，且数据成功到达
+        			temp_data            <= data_in;                     //将当前输入数据寄存
+        			temp_keep            <= keep_in;  				     //将当前数据保持信号寄存
 				end
 			if (last_in)
-				begin                                                 						//如果当前是数据包最后一个数据
-                	last_out_r1          <= 1'b1;                                           //表示当前是最后一个数据 
-                	ready_in             <= ready_out;    									//从设备准备好接收数据时，主设备才能准备发送数据，可避免数据溢出
+				begin                                                 	//如果当前是数据包最后一个数据
+                	last_out_r1          <= 1'b1;                       //表示当前是最后一个数据 
+                	ready_in             <= ready_out;    				//准备好接收数据时，主设备才能准备发送数据，可避免数据溢出
 				end 
-			else if (ready_in & valid_in & hdr_valid_r1)	                   				//有头部数据插入时，主设备准备发送数据，从设备准备接收数据
+			else if (ready_in & valid_in & hdr_valid_r1)	            //有头部数据插入时，从设备准备接收数据，且数据成功到达
 				begin            
-                integer     shift_amt = DATA_BYTE_WD - byte_insert_cnt_r1;                 	 //计算合并数据时需要左移数据的比特位
-                            temp_keep <= shift_keep_left(hdr_keep_r1, shift_amt) | keep_in;  //更新数据选通的寄存器，并与输入保持信号进行或操作 
-                            last_out_r1  <= last_in;                                      	 // 可以告知从设备接受结束
+                	integer     shift_amt = DATA_BYTE_WD - byte_insert_cnt_r1;                 	 //计算合并数据时需要左移数据的比特位
+                                temp_keep <= shift_keep_left(hdr_keep_r1, shift_amt) | keep_in;  //更新数据选通的寄存器，并与输入保持信号进行或操作 
+                                last_out_r1  <= last_in;                                      	 // 可以告知从设备接受结束
                 end
 			if (ready_out)																	 //从设备准备好接收数据		
 				begin                                                   
