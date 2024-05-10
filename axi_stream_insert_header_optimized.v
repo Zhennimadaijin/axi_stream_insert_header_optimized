@@ -76,7 +76,7 @@ always @(posedge clk or negedge rst_n)
         	  		ready_in             <= ready_out;                    //当从设备准备好接收数据时，主设备才能准备发送数据
         		end 
 			else if (ready_in & valid_in & ~hdr_valid_r1) 	
-				begin               							         //没有头部数据插入时，从设备准备接收数据，且数据成功到达
+				begin               				                     //没有头部数据插入时，从设备准备接收数据，且数据成功到达
         			temp_data            <= data_in;                     //将当前输入数据寄存
         			temp_keep            <= keep_in;  				     //将当前数据保持信号寄存
 				end
@@ -91,9 +91,9 @@ always @(posedge clk or negedge rst_n)
                                 temp_keep <= shift_keep_left(hdr_keep_r1, shift_amt) | keep_in;  //更新数据选通的寄存器，并与输入保持信号进行或操作 
                                 last_out_r1  <= last_in;                                      	 // 可以告知从设备接受结束
                 end
-			if (ready_out)																	 //从设备准备好接收数据		
+			if (ready_out)								  //从设备准备好接收数据		
 				begin                                                   
-                    last_out_r1      <= last_in;                               				 //如果接收方准备好接收数据，last_out_r1 将反映当前数据是否是事务的最后一个字节。
+                    last_out_r1      <= last_in;          //如果接收方准备好接收数据，last_out_r1 将反映当前数据是否是事务的最后一个字节。
                 end
      	end
  end 
